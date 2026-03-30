@@ -9,4 +9,5 @@ pub fn routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/register", post(auth::register))
         .route("/login", post(auth::login))
+        .route("/google", post(auth::google_login))
 }

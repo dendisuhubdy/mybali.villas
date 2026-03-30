@@ -34,13 +34,19 @@ pub async fn admin_login(
     .ok_or_else(|| AppError::Unauthorized("Invalid credentials".to_string()))?;
 
     // We also need the password hash (not in UserResponse for security).
-    let row = sqlx::query_scalar::<_, String>("SELECT password_hash FROM users WHERE email = $1")
-        .bind(&payload.email)
-        .fetch_one(&state.pool)
-        .await?;
+    let row = sqlx::query_scalar::<_, Option<String>>(
+        "SELECT password_hash FROM users WHERE email = $1",
+    )
+    .bind(&payload.email)
+    .fetch_one(&state.pool)
+    .await?;
+
+    let password_hash = row.ok_or_else(|| {
+        AppError::Unauthorized("This account uses Google sign-in and has no password".to_string())
+    })?;
 
     // Verify password.
-    let valid = verify_password(&payload.password, &row)?;
+    let valid = verify_password(&payload.password, &password_hash)?;
     if !valid {
         return Err(AppError::Unauthorized("Invalid credentials".to_string()));
     }

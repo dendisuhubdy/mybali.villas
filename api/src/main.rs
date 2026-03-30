@@ -13,6 +13,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 pub struct AppState {
     pub pool: PgPool,
     pub jwt_secret: String,
+    pub google_client_id: String,
 }
 
 #[tokio::main]
@@ -34,6 +35,8 @@ async fn main() {
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let jwt_secret =
         std::env::var("JWT_SECRET").unwrap_or_else(|_| "dev-secret-change-me".to_string());
+    let google_client_id =
+        std::env::var("GOOGLE_CLIENT_ID").unwrap_or_default();
 
     // Create the database connection pool.
     let pool = shared::db::create_pool(&database_url)
@@ -43,7 +46,7 @@ async fn main() {
     tracing::info!("Database connection pool created");
 
     // Build shared application state.
-    let state = Arc::new(AppState { pool, jwt_secret });
+    let state = Arc::new(AppState { pool, jwt_secret, google_client_id });
 
     // CORS: allow all origins during development.
     let cors = CorsLayer::new()

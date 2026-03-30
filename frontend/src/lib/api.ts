@@ -108,6 +108,15 @@ export async function login(
   });
 }
 
+export async function googleLogin(
+  credential: string
+): Promise<ApiResponse<AuthResponse>> {
+  return fetchApi<ApiResponse<AuthResponse>>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ credential }),
+  });
+}
+
 export async function register(
   data: RegisterRequest
 ): Promise<ApiResponse<AuthResponse>> {
