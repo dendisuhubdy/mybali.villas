@@ -10,17 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
-          950: '#431407',
+          50: '#fdf6f0',
+          100: '#fae8d8',
+          200: '#f4ceaf',
+          300: '#edaf80',
+          400: '#e08a4e',
+          500: '#d4722f',
+          600: '#bf5e22',
+          700: '#a04c1e',
+          800: '#833f1f',
+          900: '#6b351d',
+          950: '#3a1a0e',
         },
         secondary: {
           50: '#fffbeb',
@@ -41,7 +41,7 @@ const config: Config = {
         display: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       backgroundImage: {
-        'hero-gradient': 'linear-gradient(135deg, #ea580c 0%, #9a3412 50%, #7c2d12 100%)',
+        'hero-gradient': 'linear-gradient(135deg, #bf5e22 0%, #833f1f 50%, #6b351d 100%)',
         'card-gradient': 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)',
       },
       boxShadow: {
