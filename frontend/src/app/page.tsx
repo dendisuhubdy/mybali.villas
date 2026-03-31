@@ -132,11 +132,19 @@ export default async function HomePage() {
               { slug: 'canggu', name: 'Canggu', desc: 'Surf town with vibrant cafes & beach clubs' },
               { slug: 'ubud', name: 'Ubud', desc: 'Cultural heart with jungles & yoga retreats' },
               { slug: 'uluwatu', name: 'Uluwatu', desc: 'Clifftop villas & world-class surf breaks' },
+              { slug: 'seminyak', name: 'Seminyak', desc: 'Upscale dining, nightlife & beach clubs' },
               { slug: 'sanur', name: 'Sanur', desc: 'Relaxed coastal village with calm beaches' },
               { slug: 'nusa-dua', name: 'Nusa Dua', desc: 'Premium resorts & pristine white sand' },
+              { slug: 'jimbaran', name: 'Jimbaran', desc: 'Famous seafood bay & sunset views' },
+              { slug: 'kuta', name: 'Kuta', desc: 'Bustling surf hub near the airport' },
               { slug: 'tabanan', name: 'Tabanan', desc: 'UNESCO rice terraces & black sand beaches' },
               { slug: 'pererenan', name: 'Pererenan', desc: 'Stunning sunsets & growing villa scene' },
               { slug: 'mengwi', name: 'Mengwi', desc: 'Historic temples & affordable villas' },
+              { slug: 'denpasar', name: 'Denpasar', desc: 'Capital city with markets & culture' },
+              { slug: 'lovina', name: 'Lovina', desc: 'North Bali dolphins & black sand beach' },
+              { slug: 'amed', name: 'Amed', desc: 'Diving paradise with volcanic coastline' },
+              { slug: 'candidasa', name: 'Candidasa', desc: 'Tranquil east coast with lotus lagoon' },
+              { slug: 'tegallalang', name: 'Tegallalang', desc: 'Iconic terraced rice paddies' },
             ].map((loc) => (
               <Link
                 key={loc.slug}

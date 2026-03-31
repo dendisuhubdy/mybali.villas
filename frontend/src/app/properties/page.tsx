@@ -116,14 +116,22 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
 
   const areaOptions = [
     { value: '', label: 'All Areas' },
-    { value: 'seminyak', label: 'Seminyak' },
     { value: 'canggu', label: 'Canggu' },
     { value: 'ubud', label: 'Ubud' },
     { value: 'uluwatu', label: 'Uluwatu' },
+    { value: 'seminyak', label: 'Seminyak' },
     { value: 'sanur', label: 'Sanur' },
     { value: 'nusa-dua', label: 'Nusa Dua' },
     { value: 'jimbaran', label: 'Jimbaran' },
     { value: 'kuta', label: 'Kuta' },
+    { value: 'tabanan', label: 'Tabanan' },
+    { value: 'pererenan', label: 'Pererenan' },
+    { value: 'mengwi', label: 'Mengwi' },
+    { value: 'denpasar', label: 'Denpasar' },
+    { value: 'lovina', label: 'Lovina' },
+    { value: 'amed', label: 'Amed' },
+    { value: 'candidasa', label: 'Candidasa' },
+    { value: 'tegallalang', label: 'Tegallalang' },
   ];
 
   // Page title
@@ -185,17 +193,17 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
       <div className="bg-white border-b border-gray-100">
         <div className="container-custom flex flex-wrap items-center gap-3 py-3">
           {/* Area Filter */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-gray-500 uppercase">Area:</label>
-            <div className="flex gap-1">
-              {areaOptions.slice(0, 5).map((area) => (
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <label className="text-xs font-medium text-gray-500 uppercase flex-shrink-0">Area:</label>
+            <div className="flex gap-1 flex-shrink-0">
+              {areaOptions.map((area) => (
                 <Link
                   key={area.value}
                   href={buildPageUrl(searchParams, {
                     area: area.value || undefined,
                     page: undefined,
                   })}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap ${
                     (searchParams.area || '') === area.value
                       ? 'bg-primary-600 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
