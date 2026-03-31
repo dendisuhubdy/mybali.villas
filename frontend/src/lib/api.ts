@@ -14,6 +14,12 @@ import {
   ListingType,
   PricePeriod,
   PropertyStatus,
+  Amenity,
+  Review,
+  Booking,
+  BlockedDateRange,
+  PropertyRules,
+  PricingTier,
 } from './types';
 import { buildQueryString } from './utils';
 
@@ -192,6 +198,98 @@ export async function unsaveProperty(id: string): Promise<ApiResponse<null>> {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
+}
+
+// ============================================================================
+// Amenity Endpoints
+// ============================================================================
+
+export async function getAmenities(): Promise<ApiResponse<Amenity[]>> {
+  return fetchApi<ApiResponse<Amenity[]>>('/properties/amenities');
+}
+
+export async function getPropertyAmenities(slug: string): Promise<ApiResponse<Amenity[]>> {
+  return fetchApi<ApiResponse<Amenity[]>>(`/properties/${slug}/amenities`);
+}
+
+// ============================================================================
+// Review Endpoints
+// ============================================================================
+
+export async function getPropertyReviews(slug: string): Promise<ApiResponse<Review[]>> {
+  return fetchApi<ApiResponse<Review[]>>(`/properties/${slug}/reviews`);
+}
+
+export async function createReview(data: {
+  property_id: string;
+  booking_id?: string;
+  overall_rating: number;
+  cleanliness_rating?: number;
+  location_rating?: number;
+  value_rating?: number;
+  communication_rating?: number;
+  title?: string;
+  comment: string;
+}): Promise<ApiResponse<Review>> {
+  return fetchApi<ApiResponse<Review>>('/properties/reviews', {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+}
+
+// ============================================================================
+// Booking Endpoints
+// ============================================================================
+
+export async function createBooking(data: {
+  property_id: string;
+  check_in: string;
+  check_out: string;
+  num_guests: number;
+  special_requests?: string;
+  duration_type: string;
+}): Promise<ApiResponse<Booking>> {
+  return fetchApi<ApiResponse<Booking>>('/bookings', {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getMyBookings(): Promise<ApiResponse<Booking[]>> {
+  return fetchApi<ApiResponse<Booking[]>>('/bookings', {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function cancelBooking(id: string): Promise<ApiResponse<Booking>> {
+  return fetchApi<ApiResponse<Booking>>(`/bookings/${id}/cancel`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+  });
+}
+
+// ============================================================================
+// Availability & Rules Endpoints
+// ============================================================================
+
+export async function getPropertyAvailability(
+  slug: string,
+  startDate: string,
+  endDate: string
+): Promise<ApiResponse<BlockedDateRange[]>> {
+  return fetchApi<ApiResponse<BlockedDateRange[]>>(
+    `/properties/${slug}/availability?start_date=${startDate}&end_date=${endDate}`
+  );
+}
+
+export async function getPropertyRules(slug: string): Promise<ApiResponse<PropertyRules | null>> {
+  return fetchApi<ApiResponse<PropertyRules | null>>(`/properties/${slug}/rules`);
+}
+
+export async function getPropertyPricing(slug: string): Promise<ApiResponse<PricingTier[]>> {
+  return fetchApi<ApiResponse<PricingTier[]>>(`/properties/${slug}/pricing`);
 }
 
 // ============================================================================

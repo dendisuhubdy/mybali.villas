@@ -118,6 +118,89 @@ export interface Inquiry {
 }
 
 // ============================================================================
+// Amenities, Reviews, Bookings
+// ============================================================================
+
+export interface Amenity {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string;
+  category: string;
+}
+
+export interface Review {
+  id: string;
+  property_id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar?: string;
+  overall_rating: number;
+  cleanliness_rating?: number;
+  location_rating?: number;
+  value_rating?: number;
+  communication_rating?: number;
+  title?: string;
+  comment: string;
+  owner_response?: string;
+  created_at: string;
+}
+
+export interface PropertyRules {
+  id: string;
+  property_id: string;
+  check_in_time?: string;
+  check_out_time?: string;
+  max_guests?: number;
+  pets_allowed?: boolean;
+  smoking_allowed?: boolean;
+  parties_allowed?: boolean;
+  quiet_hours_start?: string;
+  quiet_hours_end?: string;
+  custom_rules?: string;
+  cancellation_policy: 'flexible' | 'moderate' | 'strict' | 'non_refundable';
+  cancellation_details?: string;
+}
+
+export interface PricingTier {
+  id: string;
+  property_id: string;
+  duration_type: 'nightly' | 'weekly' | 'monthly' | 'yearly';
+  price: number;
+  currency: string;
+  min_duration?: number;
+  max_duration?: number;
+  cleaning_fee?: number;
+  service_fee_percent?: number;
+  is_active: boolean;
+}
+
+export interface BlockedDateRange {
+  start_date: string;
+  end_date: string;
+}
+
+export interface Booking {
+  id: string;
+  property_id: string;
+  guest_id: string;
+  check_in: string;
+  check_out: string;
+  num_guests: number;
+  special_requests?: string;
+  base_price: number;
+  cleaning_fee?: number;
+  service_fee?: number;
+  total_price: number;
+  currency: string;
+  duration_type: 'nightly' | 'weekly' | 'monthly' | 'yearly';
+  duration_count: number;
+  status: 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled' | 'refunded';
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================================
 // Filter & Request Types
 // ============================================================================
 
