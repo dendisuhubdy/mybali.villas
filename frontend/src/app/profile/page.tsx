@@ -187,8 +187,46 @@ export default function ProfilePage() {
                 <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+62 xxx" className="input-field" />
               </div>
               <div>
-                <label htmlFor="avatar_url" className="label-field">Avatar URL</label>
-                <input id="avatar_url" name="avatar_url" type="url" value={formData.avatar_url} onChange={handleChange} placeholder="https://example.com/avatar.jpg" className="input-field" />
+                <label className="label-field">Avatar</label>
+                <div className="flex items-center gap-4">
+                  {formData.avatar_url ? (
+                    <img src={formData.avatar_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const token = localStorage.getItem('auth_token');
+                        if (!token) return;
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+                        try {
+                          const res = await fetch(`${apiUrl}/uploads/image`, {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` },
+                            body: fd,
+                          });
+                          const data = await res.json();
+                          if (data.success && data.data?.url) {
+                            setFormData((prev) => ({ ...prev, avatar_url: data.data.url }));
+                          }
+                        } catch { /* ignore */ }
+                      }}
+                      className="text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary-700 hover:file:bg-primary-100"
+                    />
+                    <p className="mt-1 text-xs text-gray-400">JPG, PNG, or WebP. Max 10MB.</p>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center gap-3 pt-2">
                 <button type="submit" disabled={isSaving} className="btn-primary !py-2.5 !px-6">
