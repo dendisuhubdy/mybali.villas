@@ -93,16 +93,8 @@ export default async function HomePage() {
               <p className="mt-1 text-sm text-white/80">Active Listings</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold text-white drop-shadow">200+</p>
-              <p className="mt-1 text-sm text-white/80">Verified Agents</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white drop-shadow">8</p>
+              <p className="text-3xl font-bold text-white drop-shadow">16</p>
               <p className="mt-1 text-sm text-white/80">Premium Areas</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white drop-shadow">5,000+</p>
-              <p className="mt-1 text-sm text-white/80">Happy Clients</p>
             </div>
           </div>
         </div>
