@@ -135,114 +135,43 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Canggu */}
-            <Link
-              href="/properties?area=canggu"
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
-              <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/5" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { slug: 'canggu', name: 'Canggu', desc: 'Surf town with vibrant cafes & beach clubs' },
+              { slug: 'ubud', name: 'Ubud', desc: 'Cultural heart with jungles & yoga retreats' },
+              { slug: 'uluwatu', name: 'Uluwatu', desc: 'Clifftop villas & world-class surf breaks' },
+              { slug: 'sanur', name: 'Sanur', desc: 'Relaxed coastal village with calm beaches' },
+              { slug: 'nusa-dua', name: 'Nusa Dua', desc: 'Premium resorts & pristine white sand' },
+              { slug: 'tabanan', name: 'Tabanan', desc: 'UNESCO rice terraces & black sand beaches' },
+              { slug: 'pererenan', name: 'Pererenan', desc: 'Stunning sunsets & growing villa scene' },
+              { slug: 'mengwi', name: 'Mengwi', desc: 'Historic temples & affordable villas' },
+            ].map((loc) => (
+              <Link
+                key={loc.slug}
+                href={`/properties?area=${loc.slug}`}
+                className="group relative overflow-hidden rounded-xl"
+              >
+                <div className="aspect-[4/3] transition-transform duration-500 group-hover:scale-105">
+                  <img
+                    src={`/images/areas/${loc.slug}.jpg`}
+                    alt={loc.name}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                </div>
+                <div className="absolute inset-0 flex flex-col justify-end p-5">
+                  <h3 className="text-xl font-bold text-white drop-shadow-md">
+                    {loc.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-white/80">{loc.desc}</p>
+                </div>
+                <div className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-xl font-bold">Canggu</h3>
-                <p className="mt-2 text-sm text-emerald-100">
-                  Trendy surf town with vibrant cafes, beach clubs, and rice field villas.
-                </p>
-                <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-emerald-100 group-hover:text-white">
-                  Browse properties
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            {/* Ubud */}
-            <Link
-              href="/properties?area=ubud"
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
-              <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/5" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-xl font-bold">Ubud</h3>
-                <p className="mt-2 text-sm text-teal-100">
-                  Cultural heart of Bali with lush jungles, yoga retreats, and artistic charm.
-                </p>
-                <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-teal-100 group-hover:text-white">
-                  Browse properties
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            {/* Uluwatu */}
-            <Link
-              href="/properties?area=uluwatu"
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
-              <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/5" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-xl font-bold">Uluwatu</h3>
-                <p className="mt-2 text-sm text-amber-100">
-                  Dramatic clifftop setting with world-class surf breaks and luxury villas.
-                </p>
-                <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-amber-100 group-hover:text-white">
-                  Browse properties
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            {/* Sanur */}
-            <Link
-              href="/properties?area=sanur"
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
-              <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/5" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                  </svg>
-                </div>
-                <h3 className="mt-4 text-xl font-bold">Sanur</h3>
-                <p className="mt-2 text-sm text-indigo-100">
-                  Relaxed coastal village with calm beaches, family-friendly atmosphere.
-                </p>
-                <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-indigo-100 group-hover:text-white">
-                  Browse properties
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
