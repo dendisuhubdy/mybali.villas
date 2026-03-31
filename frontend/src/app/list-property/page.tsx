@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createProperty } from '@/lib/api';
 import { PropertyType, ListingType, PricePeriod } from '@/lib/types';
+import ImageUploader from '@/components/ImageUploader';
 
 const AREAS = [
   'Seminyak', 'Canggu', 'Ubud', 'Uluwatu', 'Sanur', 'Nusa Dua', 'Jimbaran', 'Kuta',
@@ -38,6 +39,7 @@ export default function ListPropertyPage() {
     thumbnail_url: '',
     features: '' as string,
   });
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -96,7 +98,8 @@ export default function ListPropertyPage() {
         year_built: formData.year_built ? parseInt(formData.year_built) : undefined,
         area: formData.area,
         address: formData.address || undefined,
-        thumbnail_url: formData.thumbnail_url || undefined,
+        thumbnail_url: uploadedImages[0] || formData.thumbnail_url || undefined,
+        images: uploadedImages.length > 0 ? uploadedImages.map(url => ({ url })) : undefined,
         features: features.length > 0 ? features : undefined,
       });
 
@@ -302,9 +305,13 @@ export default function ListPropertyPage() {
             {step === 3 && (
               <div className="space-y-5">
                 <div>
-                  <label htmlFor="thumbnail_url" className="label-field">Thumbnail Image URL</label>
-                  <input id="thumbnail_url" name="thumbnail_url" type="url" value={formData.thumbnail_url} onChange={handleChange} placeholder="https://example.com/image.jpg" className="input-field" />
-                  <p className="mt-1 text-xs text-gray-400">Paste a direct link to the main image of your property</p>
+                  <label className="label-field">Property Photos (min 10 recommended)</label>
+                  <ImageUploader
+                    images={uploadedImages}
+                    onChange={setUploadedImages}
+                    maxImages={20}
+                  />
+                  <p className="mt-1 text-xs text-gray-400">Upload at least 10 high-quality photos. First image will be the cover.</p>
                 </div>
                 <div>
                   <label htmlFor="features" className="label-field">Features</label>

@@ -4,4 +4,5 @@ pub mod availability;
 pub mod bookings;
 pub mod properties;
 pub mod reviews;
+pub mod uploads;
 pub mod users;
