@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import PropertyCard from '@/components/PropertyCard';
 import SearchBar from '@/components/SearchBar';
+import HeroSlideshow from '@/components/HeroSlideshow';
 import { getFeaturedProperties, MOCK_PROPERTIES } from '@/lib/api';
 import { Property } from '@/lib/types';
 
@@ -64,26 +65,17 @@ export default async function HomePage() {
       {/* ================================================================
           HERO SECTION
           ================================================================ */}
-      <section className="relative overflow-hidden bg-hero-gradient">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="hero-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="1.5" fill="white" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#hero-pattern)" />
-          </svg>
-        </div>
+      <section className="relative overflow-hidden">
+        {/* Slideshow Background */}
+        <HeroSlideshow />
 
-        <div className="container-custom relative py-20 sm:py-28 lg:py-36">
+        <div className="container-custom relative z-10 py-20 sm:py-28 lg:py-36">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
               Find Your Dream{' '}
               <span className="text-secondary-400">Property</span> in Bali
             </h1>
-            <p className="mt-6 text-lg text-primary-100 sm:text-xl">
+            <p className="mt-6 text-lg text-white/90 drop-shadow sm:text-xl">
               Discover premium villas, houses, apartments, land, and commercial
               properties across Bali&apos;s most desirable locations.
             </p>
@@ -97,26 +89,26 @@ export default async function HomePage() {
           {/* Quick Stats */}
           <div className="mx-auto mt-12 flex max-w-2xl flex-wrap items-center justify-center gap-8 sm:gap-12">
             <div className="text-center">
-              <p className="text-3xl font-bold text-white">1,500+</p>
-              <p className="mt-1 text-sm text-primary-200">Active Listings</p>
+              <p className="text-3xl font-bold text-white drop-shadow">1,500+</p>
+              <p className="mt-1 text-sm text-white/80">Active Listings</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold text-white">200+</p>
-              <p className="mt-1 text-sm text-primary-200">Verified Agents</p>
+              <p className="text-3xl font-bold text-white drop-shadow">200+</p>
+              <p className="mt-1 text-sm text-white/80">Verified Agents</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold text-white">8</p>
-              <p className="mt-1 text-sm text-primary-200">Premium Areas</p>
+              <p className="text-3xl font-bold text-white drop-shadow">8</p>
+              <p className="mt-1 text-sm text-white/80">Premium Areas</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold text-white">5,000+</p>
-              <p className="mt-1 text-sm text-primary-200">Happy Clients</p>
+              <p className="text-3xl font-bold text-white drop-shadow">5,000+</p>
+              <p className="mt-1 text-sm text-white/80">Happy Clients</p>
             </div>
           </div>
         </div>
 
         {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0 z-10">
           <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 60V30C240 5 480 0 720 15C960 30 1200 50 1440 30V60H0Z" fill="white" />
           </svg>
