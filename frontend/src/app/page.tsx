@@ -147,21 +147,21 @@ export default async function HomePage() {
       </section>
 
       {/* ================================================================
-          LISTING CATEGORIES
+          BROWSE BY LOCATION
           ================================================================ */}
       <section className="py-16 sm:py-20">
         <div className="container-custom">
           <div className="text-center">
-            <h2 className="section-heading">Browse by Category</h2>
+            <h2 className="section-heading">Browse by Location</h2>
             <p className="section-subheading mx-auto max-w-2xl">
-              Whether you&apos;re looking to buy, invest, or rent in Bali &mdash; we have you covered
+              Explore properties in Bali&apos;s most sought-after neighborhoods
             </p>
           </div>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Buy Freehold */}
+            {/* Canggu */}
             <Link
-              href="/properties?listing_type=sale_freehold"
+              href="/properties?area=canggu"
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
             >
               <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
@@ -169,12 +169,13 @@ export default async function HomePage() {
               <div className="relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-xl font-bold">Buy Freehold</h3>
+                <h3 className="mt-4 text-xl font-bold">Canggu</h3>
                 <p className="mt-2 text-sm text-emerald-100">
-                  Full ownership rights. Own your piece of paradise in Bali permanently.
+                  Trendy surf town with vibrant cafes, beach clubs, and rice field villas.
                 </p>
                 <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-emerald-100 group-hover:text-white">
                   Browse properties
@@ -185,9 +186,9 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            {/* Buy Leasehold */}
+            {/* Ubud */}
             <Link
-              href="/properties?listing_type=sale_leasehold"
+              href="/properties?area=ubud"
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
             >
               <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
@@ -195,12 +196,13 @@ export default async function HomePage() {
               <div className="relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-xl font-bold">Buy Leasehold</h3>
+                <h3 className="mt-4 text-xl font-bold">Ubud</h3>
                 <p className="mt-2 text-sm text-teal-100">
-                  Long-term lease agreements. Ideal for investment with lower entry costs.
+                  Cultural heart of Bali with lush jungles, yoga retreats, and artistic charm.
                 </p>
                 <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-teal-100 group-hover:text-white">
                   Browse properties
@@ -211,9 +213,9 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            {/* Rent Short-Term */}
+            {/* Uluwatu */}
             <Link
-              href="/properties?listing_type=short_term_rent"
+              href="/properties?area=uluwatu"
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
             >
               <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
@@ -221,12 +223,13 @@ export default async function HomePage() {
               <div className="relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-xl font-bold">Rent Short-Term</h3>
+                <h3 className="mt-4 text-xl font-bold">Uluwatu</h3>
                 <p className="mt-2 text-sm text-amber-100">
-                  Daily &amp; weekly stays. Perfect for holidays and short getaways.
+                  Dramatic clifftop setting with world-class surf breaks and luxury villas.
                 </p>
                 <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-amber-100 group-hover:text-white">
                   Browse properties
@@ -237,9 +240,9 @@ export default async function HomePage() {
               </div>
             </Link>
 
-            {/* Rent Long-Term */}
+            {/* Sanur */}
             <Link
-              href="/properties?listing_type=long_term_rent"
+              href="/properties?area=sanur"
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 p-6 text-white transition-all hover:shadow-xl hover:-translate-y-1"
             >
               <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-white/10" />
@@ -247,12 +250,13 @@ export default async function HomePage() {
               <div className="relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-xl font-bold">Rent Long-Term</h3>
+                <h3 className="mt-4 text-xl font-bold">Sanur</h3>
                 <p className="mt-2 text-sm text-indigo-100">
-                  Monthly &amp; yearly rentals. Make Bali your home away from home.
+                  Relaxed coastal village with calm beaches, family-friendly atmosphere.
                 </p>
                 <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-indigo-100 group-hover:text-white">
                   Browse properties

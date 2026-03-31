@@ -268,7 +268,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Social Register */}
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex justify-center">
             <GoogleSignInButton
               text="signup_with"
               onSuccess={async (credential) => {

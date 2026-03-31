@@ -165,7 +165,7 @@ export default function LoginPage() {
           </div>
 
           {/* Social Login */}
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex justify-center">
             <GoogleSignInButton
               text="signin_with"
               onSuccess={async (credential) => {

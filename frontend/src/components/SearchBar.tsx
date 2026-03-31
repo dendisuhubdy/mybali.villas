@@ -65,28 +65,6 @@ export default function SearchBar({
 
   return (
     <form onSubmit={handleSearch} className="w-full">
-      {/* Listing Type Tabs */}
-      <div className={`flex gap-1 ${isHero ? 'mb-4' : 'mb-3'}`}>
-        {listingTypes.map((type) => (
-          <button
-            key={type.value}
-            type="button"
-            onClick={() => setListingType(type.value)}
-            className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${
-              listingType === type.value
-                ? isHero
-                  ? 'bg-white text-primary-700 shadow-md'
-                  : 'bg-primary-600 text-white shadow-md'
-                : isHero
-                  ? 'bg-white/20 text-white hover:bg-white/30'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            {type.label}
-          </button>
-        ))}
-      </div>
-
       {/* Search Fields */}
       <div
         className={`flex flex-col gap-3 rounded-xl p-4 shadow-lg sm:flex-row sm:items-end ${
