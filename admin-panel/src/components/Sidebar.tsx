@@ -7,6 +7,8 @@ import {
   BuildingOfficeIcon,
   UsersIcon,
   EnvelopeIcon,
+  CalendarDaysIcon,
+  StarIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { classNames } from '@/lib/utils';
@@ -19,6 +21,8 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Properties', href: '/properties', icon: BuildingOfficeIcon },
+  { name: 'Bookings', href: '/bookings', icon: CalendarDaysIcon },
+  { name: 'Reviews', href: '/reviews', icon: StarIcon },
   { name: 'Users', href: '/users', icon: UsersIcon },
   { name: 'Inquiries', href: '/inquiries', icon: EnvelopeIcon },
 ];

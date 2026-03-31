@@ -1,7 +1,9 @@
 pub mod auth;
+pub mod bookings;
 pub mod dashboard;
 pub mod inquiries;
 pub mod properties;
+pub mod reviews;
 pub mod users;
 
 use axum::Router;
@@ -16,5 +18,7 @@ pub fn admin_routes(state: Arc<AppState>) -> Router {
         .nest("/properties", properties::routes(state.clone()))
         .nest("/users", users::routes(state.clone()))
         .nest("/inquiries", inquiries::routes(state.clone()))
+        .nest("/bookings", bookings::routes(state.clone()))
+        .nest("/reviews", reviews::routes(state.clone()))
         .nest("/dashboard", dashboard::routes(state.clone()))
 }

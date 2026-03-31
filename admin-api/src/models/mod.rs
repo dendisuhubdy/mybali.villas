@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use shared::models::{InquiryStatus, ListingType, PricePeriod, PropertyType, UserRole};
+use shared::models::{BookingStatus, InquiryStatus, ListingType, PricePeriod, PropertyType, UserRole};
 use uuid::Uuid;
 use validator::Validate;
 
@@ -284,6 +284,55 @@ pub struct RecentProperty {
     pub area: String,
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
+}
+
+// ---------------------------------------------------------------------------
+// Booking DTOs
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateBookingStatusRequest {
+    pub status: BookingStatus,
+    /// Optional reason when cancelling or refunding.
+    pub reason: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct BookingFilterParams {
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
+    pub status: Option<BookingStatus>,
+    pub property_id: Option<Uuid>,
+}
+
+impl BookingFilterParams {
+    pub fn pagination(&self) -> PaginationParams {
+        PaginationParams {
+            page: self.page,
+            per_page: self.per_page,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Review DTOs
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub struct ReviewFilterParams {
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
+    pub is_approved: Option<bool>,
+    pub is_flagged: Option<bool>,
+}
+
+impl ReviewFilterParams {
+    pub fn pagination(&self) -> PaginationParams {
+        PaginationParams {
+            page: self.page,
+            per_page: self.per_page,
+        }
+    }
 }
 
 // Re-export slugify from shared crate

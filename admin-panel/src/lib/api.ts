@@ -6,6 +6,8 @@ import {
   User,
   Inquiry,
   PaginatedResponse,
+  AdminBooking,
+  AdminReview,
 } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'http://localhost:8081/api/admin';
@@ -220,4 +222,71 @@ export async function updateInquiryStatus(id: string, status: string): Promise<I
     body: JSON.stringify({ status }),
   });
   return handleResponse<Inquiry>(response);
+}
+
+// Bookings
+export async function getBookings(params?: {
+  page?: number;
+  per_page?: number;
+  status?: string;
+}): Promise<PaginatedResponse<AdminBooking>> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set('page', params.page.toString());
+  if (params?.per_page) searchParams.set('per_page', params.per_page.toString());
+  if (params?.status) searchParams.set('status', params.status);
+
+  const response = await fetch(`${API_URL}/bookings?${searchParams.toString()}`, {
+    headers: getHeaders(),
+  });
+  return handleResponse<PaginatedResponse<AdminBooking>>(response);
+}
+
+export async function updateBookingStatus(id: string, status: string): Promise<AdminBooking> {
+  const response = await fetch(`${API_URL}/bookings/${id}/status`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: JSON.stringify({ status }),
+  });
+  return handleResponse<AdminBooking>(response);
+}
+
+// Reviews
+export async function getReviews(params?: {
+  page?: number;
+  per_page?: number;
+  is_approved?: boolean;
+}): Promise<PaginatedResponse<AdminReview>> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set('page', params.page.toString());
+  if (params?.per_page) searchParams.set('per_page', params.per_page.toString());
+  if (params?.is_approved !== undefined) searchParams.set('is_approved', params.is_approved.toString());
+
+  const response = await fetch(`${API_URL}/reviews?${searchParams.toString()}`, {
+    headers: getHeaders(),
+  });
+  return handleResponse<PaginatedResponse<AdminReview>>(response);
+}
+
+export async function approveReview(id: string): Promise<AdminReview> {
+  const response = await fetch(`${API_URL}/reviews/${id}/approve`, {
+    method: 'PUT',
+    headers: getHeaders(),
+  });
+  return handleResponse<AdminReview>(response);
+}
+
+export async function flagReview(id: string): Promise<AdminReview> {
+  const response = await fetch(`${API_URL}/reviews/${id}/flag`, {
+    method: 'PUT',
+    headers: getHeaders(),
+  });
+  return handleResponse<AdminReview>(response);
+}
+
+export async function deleteReview(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/reviews/${id}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  if (!response.ok) throw new Error('Failed to delete review');
 }

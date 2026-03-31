@@ -105,3 +105,44 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
+
+export interface AdminBooking {
+  id: string;
+  property_id: string;
+  guest_id: string;
+  check_in: string;
+  check_out: string;
+  num_guests: number;
+  special_requests?: string;
+  base_price: number;
+  cleaning_fee?: number;
+  service_fee?: number;
+  total_price: number;
+  currency: string;
+  duration_type: string;
+  duration_count: number;
+  status: 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled' | 'refunded';
+  cancelled_at?: string;
+  cancellation_reason?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminReview {
+  id: string;
+  property_id: string;
+  booking_id?: string;
+  user_id: string;
+  overall_rating: number;
+  cleanliness_rating?: number;
+  location_rating?: number;
+  value_rating?: number;
+  communication_rating?: number;
+  title?: string;
+  comment: string;
+  owner_response?: string;
+  is_approved: boolean;
+  is_flagged: boolean;
+  created_at: string;
+  updated_at: string;
+}
