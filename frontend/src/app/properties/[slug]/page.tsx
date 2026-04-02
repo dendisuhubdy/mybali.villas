@@ -6,6 +6,7 @@ import PropertyCard from '@/components/PropertyCard';
 import AmenitiesGrid from '@/components/AmenitiesGrid';
 import ReviewsSection from '@/components/ReviewsSection';
 import BookingWidget from '@/components/BookingWidget';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { getPropertyBySlug, getSimilarProperties, MOCK_PROPERTIES } from '@/lib/api';
 import { Property } from '@/lib/types';
 import {
@@ -338,6 +339,13 @@ export default async function PropertyDetailPage({
                 currency={property.currency}
                 pricePeriod={property.price_period}
                 listingType={property.listing_type}
+              />
+
+              {/* WhatsApp Button */}
+              <WhatsAppButton
+                variant="sidebar"
+                propertyTitle={property.title}
+                propertyId={property.id}
               />
 
               {/* Inquiry Form */}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import NewsletterSignup from './NewsletterSignup';
 
 const footerLinks = {
   properties: [
@@ -13,23 +14,23 @@ const footerLinks = {
     { label: 'Commercial', href: '/properties?property_type=commercial' },
   ],
   areas: [
-    { label: 'Seminyak', href: '/properties?area=seminyak' },
-    { label: 'Canggu', href: '/properties?area=canggu' },
-    { label: 'Ubud', href: '/properties?area=ubud' },
-    { label: 'Uluwatu', href: '/properties?area=uluwatu' },
-    { label: 'Sanur', href: '/properties?area=sanur' },
-    { label: 'Nusa Dua', href: '/properties?area=nusa-dua' },
-    { label: 'Jimbaran', href: '/properties?area=jimbaran' },
-    { label: 'Kuta', href: '/properties?area=kuta' },
+    { label: 'Seminyak', href: '/areas/seminyak' },
+    { label: 'Canggu', href: '/areas/canggu' },
+    { label: 'Ubud', href: '/areas/ubud' },
+    { label: 'Uluwatu', href: '/areas/uluwatu' },
+    { label: 'Sanur', href: '/areas/sanur' },
+    { label: 'Nusa Dua', href: '/areas/nusa-dua' },
+    { label: 'Jimbaran', href: '/areas/jimbaran' },
+    { label: 'All Areas', href: '/areas' },
   ],
   company: [
     { label: 'About Us', href: '/about' },
     { label: 'Contact', href: '/contact' },
-    { label: 'Careers', href: '/careers' },
-    { label: 'Blog', href: '/blog' },
+    { label: 'Concierge', href: '/concierge' },
+    { label: 'Blog & Guides', href: '/blog' },
+    { label: 'FAQ', href: '/faq' },
   ],
   support: [
-    { label: 'Help Center', href: '/help' },
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Terms of Service', href: '/terms' },
     { label: 'List Your Property', href: '/list-property' },
@@ -41,7 +42,7 @@ export default function Footer() {
     <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer */}
       <div className="container-custom py-12 lg:py-16">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2">
@@ -181,6 +182,11 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Newsletter Column */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-1">
+            <NewsletterSignup variant="footer" />
           </div>
         </div>
       </div>

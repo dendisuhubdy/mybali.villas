@@ -82,12 +82,23 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <span className="inline-flex items-center rounded-md bg-white/90 px-2 py-1 text-xs font-semibold text-gray-700 backdrop-blur-sm">
             {getPropertyTypeLabel(property.property_type)}
           </span>
+          {property.is_featured && (
+            <span className="inline-flex items-center rounded-md bg-secondary-500 px-2 py-1 text-xs font-semibold text-white">
+              Featured
+            </span>
+          )}
           {property.is_verified && (
             <span className="inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-semibold text-white">
               <svg className="mr-0.5 h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
               Verified
+            </span>
+          )}
+          {/* New listing badge (within last 7 days) */}
+          {new Date(property.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+            <span className="inline-flex items-center rounded-md bg-rose-500 px-2 py-1 text-xs font-semibold text-white">
+              New
             </span>
           )}
         </div>

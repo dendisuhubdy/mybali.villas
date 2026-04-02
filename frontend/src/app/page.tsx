@@ -2,6 +2,7 @@ import Link from 'next/link';
 import PropertyCard from '@/components/PropertyCard';
 import SearchBar from '@/components/SearchBar';
 import HeroSlideshow from '@/components/HeroSlideshow';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import { getFeaturedProperties, MOCK_PROPERTIES } from '@/lib/api';
 import { Property } from '@/lib/types';
 
@@ -112,11 +113,22 @@ export default async function HomePage() {
           ================================================================ */}
       <section className="py-16 sm:py-20">
         <div className="container-custom">
-          <div className="text-center">
-            <h2 className="section-heading">Browse by Location</h2>
-            <p className="section-subheading mx-auto max-w-2xl">
-              Explore properties in Bali&apos;s most sought-after neighborhoods
-            </p>
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="section-heading">Browse by Location</h2>
+              <p className="section-subheading">
+                Explore properties in Bali&apos;s most sought-after neighborhoods
+              </p>
+            </div>
+            <Link
+              href="/areas"
+              className="hidden items-center gap-1 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700 sm:flex"
+            >
+              All Areas
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +152,7 @@ export default async function HomePage() {
             ].map((loc) => (
               <Link
                 key={loc.slug}
-                href={`/properties?area=${loc.slug}`}
+                href={`/areas/${loc.slug}`}
                 className="group relative overflow-hidden rounded-xl"
               >
                 <div className="aspect-[4/3] transition-transform duration-500 group-hover:scale-105">
@@ -237,6 +249,70 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ================================================================
+          BLOG PREVIEW
+          ================================================================ */}
+      <section className="bg-gray-50 py-16 sm:py-20">
+        <div className="container-custom">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="section-heading">Guides & Insights</h2>
+              <p className="section-subheading">
+                Expert advice on buying, investing, and living in Bali
+              </p>
+            </div>
+            <Link
+              href="/blog"
+              className="hidden items-center gap-1 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-700 sm:flex"
+            >
+              All Articles
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { slug: 'complete-guide-buying-property-bali', title: 'The Complete Guide to Buying Property in Bali', category: 'Buying Guide', time: '12 min', image: '/images/areas/seminyak.jpg' },
+              { slug: 'freehold-vs-leasehold-bali', title: 'Freehold vs Leasehold: Which Is Right for You?', category: 'Legal', time: '8 min', image: '/images/areas/uluwatu.jpg' },
+              { slug: 'best-areas-villa-investment-bali-2026', title: 'Best Areas for Villa Investment in Bali (2026)', category: 'Investment', time: '10 min', image: '/images/areas/canggu.jpg' },
+            ].map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-primary-300 hover:shadow-md"
+              >
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5">
+                  <span className="inline-flex rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                    {post.category}
+                  </span>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-primary-600">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-400">{post.time} read</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================
+          NEWSLETTER
+          ================================================================ */}
+      <section className="py-16 sm:py-20">
+        <div className="container-custom">
+          <NewsletterSignup variant="standalone" />
         </div>
       </section>
 

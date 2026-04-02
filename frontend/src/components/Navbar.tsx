@@ -87,7 +87,9 @@ export default function Navbar() {
     { href: '/properties?listing_type=sale_leasehold', label: 'Buy Leasehold' },
     { href: '/properties?listing_type=short_term_rent', label: 'Rent Short-Term' },
     { href: '/properties?listing_type=long_term_rent', label: 'Rent Long-Term' },
-    { href: '/properties', label: 'All Properties' },
+    { href: '/areas', label: 'Areas' },
+    { href: '/blog', label: 'Guides' },
+    { href: '/concierge', label: 'Concierge' },
   ];
 
   return (
