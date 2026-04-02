@@ -1,8 +1,32 @@
+export type AdminRole = 'super_admin' | 'admin' | 'operational';
+
 export interface AdminUser {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'super_admin' | 'editor';
+  role: AdminRole;
+}
+
+/** Whether this role can access the Users management page. */
+export function canManageUsers(role: AdminRole): boolean {
+  return role === 'super_admin' || role === 'admin';
+}
+
+/** Whether this role can delete properties. */
+export function canDeleteProperties(role: AdminRole): boolean {
+  return role === 'super_admin' || role === 'admin';
+}
+
+/** Returns the roles that the given caller role is allowed to assign. */
+export function assignableRoles(callerRole: AdminRole): string[] {
+  switch (callerRole) {
+    case 'super_admin':
+      return ['super_admin', 'admin', 'operational', 'agent', 'user'];
+    case 'admin':
+      return ['operational', 'agent', 'user'];
+    default:
+      return [];
+  }
 }
 
 export interface LoginResponse {
@@ -61,7 +85,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'agent' | 'admin' | 'super_admin';
+  role: 'user' | 'agent' | 'admin' | 'super_admin' | 'operational';
   avatar?: string;
   is_active: boolean;
   created_at: string;

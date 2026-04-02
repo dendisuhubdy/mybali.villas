@@ -51,7 +51,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen flex bg-admin-bg">
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole={user?.role} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">

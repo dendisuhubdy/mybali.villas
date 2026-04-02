@@ -6,7 +6,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::middleware::RequireAdmin;
+use crate::middleware::{RequireAdmin, RequireAdminOrAbove};
 use crate::models::{
     slugify, ApiResponse, CreatePropertyRequest, PaginatedResponse, PropertyFilterParams,
     UpdatePropertyRequest,
@@ -15,7 +15,7 @@ use crate::AppState;
 
 /// GET /api/admin/properties
 pub async fn list_properties(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Query(params): Query<PropertyFilterParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<Property>>>, AppError> {
@@ -106,7 +106,7 @@ pub async fn list_properties(
 
 /// GET /api/admin/properties/:id
 pub async fn get_property(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Property>>, AppError> {
@@ -121,7 +121,7 @@ pub async fn get_property(
 
 /// POST /api/admin/properties
 pub async fn create_property(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreatePropertyRequest>,
 ) -> Result<Json<ApiResponse<Property>>, AppError> {
@@ -184,7 +184,7 @@ pub async fn create_property(
 
 /// PUT /api/admin/properties/:id
 pub async fn update_property(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdatePropertyRequest>,
@@ -248,8 +248,9 @@ pub async fn update_property(
 }
 
 /// DELETE /api/admin/properties/:id
+/// Only admin and super_admin can delete (soft-delete) properties.
 pub async fn delete_property(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, _role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Property>>, AppError> {
@@ -266,7 +267,7 @@ pub async fn delete_property(
 
 /// PUT /api/admin/properties/:id/toggle-featured
 pub async fn toggle_featured(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Property>>, AppError> {

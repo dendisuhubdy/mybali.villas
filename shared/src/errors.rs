@@ -14,6 +14,8 @@ pub enum AppError {
     BadRequest(String),
     /// Internal server error (500).
     Internal(String),
+    /// Forbidden – authenticated but insufficient permissions (403).
+    Forbidden(String),
     /// Resource conflict, e.g. duplicate email (409).
     Conflict(String),
 }
@@ -25,6 +27,7 @@ impl fmt::Display for AppError {
             AppError::Unauthorized(msg) => write!(f, "Unauthorized: {msg}"),
             AppError::BadRequest(msg) => write!(f, "Bad request: {msg}"),
             AppError::Internal(msg) => write!(f, "Internal error: {msg}"),
+            AppError::Forbidden(msg) => write!(f, "Forbidden: {msg}"),
             AppError::Conflict(msg) => write!(f, "Conflict: {msg}"),
         }
     }
@@ -39,6 +42,7 @@ impl IntoResponse for AppError {
             AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg.clone()),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
             AppError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
+            AppError::Forbidden(msg) => (StatusCode::FORBIDDEN, msg.clone()),
             AppError::Conflict(msg) => (StatusCode::CONFLICT, msg.clone()),
         };
 

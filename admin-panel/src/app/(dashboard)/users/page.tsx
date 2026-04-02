@@ -9,8 +9,20 @@ import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import StatusBadge from '@/components/StatusBadge';
 import { getUsers, createUser, updateUser, toggleUserActive } from '@/lib/api';
-import { User, PaginatedResponse } from '@/lib/types';
+import { User, PaginatedResponse, AdminRole, assignableRoles, canManageUsers } from '@/lib/types';
 import { formatDate, getInitials, capitalize } from '@/lib/utils';
+
+function getCurrentUserRole(): AdminRole {
+  if (typeof window === 'undefined') return 'operational';
+  try {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.role || 'operational';
+    }
+  } catch { /* ignore */ }
+  return 'operational';
+}
 
 export default function UsersPage() {
   const [data, setData] = useState<PaginatedResponse<User> | null>(null);
@@ -19,6 +31,7 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [currentRole, setCurrentRole] = useState<AdminRole>('operational');
 
   // Form state
   const [formName, setFormName] = useState('');
@@ -27,6 +40,12 @@ export default function UsersPage() {
   const [formRole, setFormRole] = useState('user');
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    setCurrentRole(getCurrentUserRole());
+  }, []);
+
+  const allowedRoles = assignableRoles(currentRole);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -53,7 +72,7 @@ export default function UsersPage() {
     setFormName('');
     setFormEmail('');
     setFormPassword('');
-    setFormRole('user');
+    setFormRole(allowedRoles[0] || 'user');
     setFormError('');
     setShowModal(true);
   }
@@ -106,6 +125,26 @@ export default function UsersPage() {
     }
   }
 
+  /** Whether the current user can edit/deactivate a target user based on role hierarchy. */
+  function canModifyUser(targetRole: string): boolean {
+    if (currentRole === 'super_admin') return true;
+    if (currentRole === 'admin') {
+      return targetRole === 'operational' || targetRole === 'agent' || targetRole === 'user';
+    }
+    return false;
+  }
+
+  if (!canManageUsers(currentRole)) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-slate-700">Access Denied</h2>
+          <p className="mt-2 text-slate-500">You do not have permission to manage users.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -126,10 +165,11 @@ export default function UsersPage() {
             className="select-field sm:w-48"
           >
             <option value="">All Roles</option>
-            <option value="user">User</option>
-            <option value="agent">Agent</option>
-            <option value="admin">Admin</option>
             <option value="super_admin">Super Admin</option>
+            <option value="admin">Admin</option>
+            <option value="operational">Operational</option>
+            <option value="agent">Agent</option>
+            <option value="user">User</option>
           </select>
         </div>
       </div>
@@ -176,7 +216,15 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">{user.email}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.role === 'super_admin'
+                          ? 'bg-purple-100 text-purple-700'
+                          : user.role === 'admin'
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : user.role === 'operational'
+                          ? 'bg-teal-100 text-teal-700'
+                          : 'bg-slate-100 text-slate-700'
+                      }`}>
                         {capitalize(user.role)}
                       </span>
                     </td>
@@ -185,25 +233,29 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">{formatDate(user.created_at)}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleToggleActive(user.id)}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                            user.is_active
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                        >
-                          {user.is_active ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <PencilSquareIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {canModifyUser(user.role) ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleActive(user.id)}
+                            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
+                              user.is_active
+                                ? 'text-red-600 hover:bg-red-50'
+                                : 'text-green-600 hover:bg-green-50'
+                            }`}
+                          >
+                            {user.is_active ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <PencilSquareIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400">--</span>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -287,10 +339,11 @@ export default function UsersPage() {
               onChange={(e) => setFormRole(e.target.value)}
               className="select-field"
             >
-              <option value="user">User</option>
-              <option value="agent">Agent</option>
-              <option value="admin">Admin</option>
-              <option value="super_admin">Super Admin</option>
+              {allowedRoles.map((role) => (
+                <option key={role} value={role}>
+                  {capitalize(role)}
+                </option>
+              ))}
             </select>
           </div>
 

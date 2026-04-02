@@ -13,7 +13,7 @@ use crate::AppState;
 ///
 /// List all reviews with pagination and optional is_approved filter.
 pub async fn list_reviews(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Query(params): Query<ReviewFilterParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<Review>>>, AppError> {
@@ -66,7 +66,7 @@ pub async fn list_reviews(
 ///
 /// Approve a review (sets is_approved=true) and recalculates the property avg_rating.
 pub async fn approve_review(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Review>>, AppError> {
@@ -90,7 +90,7 @@ pub async fn approve_review(
 ///
 /// Flag a review (sets is_flagged=true).
 pub async fn flag_review(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Review>>, AppError> {
@@ -114,7 +114,7 @@ pub async fn flag_review(
 ///
 /// Delete a review and recalculate the property avg_rating.
 pub async fn delete_review(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Review>>, AppError> {

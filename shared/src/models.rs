@@ -43,9 +43,73 @@ pub enum PricePeriod {
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum UserRole {
+    SuperAdmin,
     Admin,
+    Operational,
     Agent,
     User,
+}
+
+impl std::fmt::Display for UserRole {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(String::from))
+            .unwrap_or_else(|| format!("{:?}", self));
+        write!(f, "{}", s)
+    }
+}
+
+impl std::str::FromStr for UserRole {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "super_admin" | "SuperAdmin" => Ok(UserRole::SuperAdmin),
+            "admin" | "Admin" => Ok(UserRole::Admin),
+            "operational" | "Operational" => Ok(UserRole::Operational),
+            "agent" | "Agent" => Ok(UserRole::Agent),
+            "user" | "User" => Ok(UserRole::User),
+            _ => Err(format!("Unknown role: {s}")),
+        }
+    }
+}
+
+impl UserRole {
+    /// Returns the privilege level (higher = more privileged).
+    pub fn privilege_level(&self) -> u8 {
+        match self {
+            UserRole::SuperAdmin => 3,
+            UserRole::Admin => 2,
+            UserRole::Operational => 1,
+            UserRole::Agent => 0,
+            UserRole::User => 0,
+        }
+    }
+
+    /// Whether this role can access the admin portal.
+    pub fn is_admin_portal_role(&self) -> bool {
+        matches!(self, UserRole::SuperAdmin | UserRole::Admin | UserRole::Operational)
+    }
+
+    /// Whether this role can manage users (view, create, edit, deactivate).
+    pub fn can_manage_users(&self) -> bool {
+        matches!(self, UserRole::SuperAdmin | UserRole::Admin)
+    }
+
+    /// Whether `self` can assign the given target role to another user.
+    pub fn can_assign_role(&self, target: &UserRole) -> bool {
+        match self {
+            UserRole::SuperAdmin => target.is_admin_portal_role() || *target == UserRole::Agent || *target == UserRole::User,
+            UserRole::Admin => matches!(target, UserRole::Operational | UserRole::Agent | UserRole::User),
+            _ => false,
+        }
+    }
+
+    /// Whether this role can delete properties.
+    pub fn can_delete_properties(&self) -> bool {
+        matches!(self, UserRole::SuperAdmin | UserRole::Admin)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]

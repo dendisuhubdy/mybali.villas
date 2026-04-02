@@ -12,23 +12,29 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { classNames } from '@/lib/utils';
+import { AdminRole, canManageUsers } from '@/lib/types';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  userRole?: AdminRole;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Properties', href: '/properties', icon: BuildingOfficeIcon },
-  { name: 'Bookings', href: '/bookings', icon: CalendarDaysIcon },
-  { name: 'Reviews', href: '/reviews', icon: StarIcon },
-  { name: 'Users', href: '/users', icon: UsersIcon },
-  { name: 'Inquiries', href: '/inquiries', icon: EnvelopeIcon },
+const allNavigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, requiresUserManagement: false },
+  { name: 'Properties', href: '/properties', icon: BuildingOfficeIcon, requiresUserManagement: false },
+  { name: 'Bookings', href: '/bookings', icon: CalendarDaysIcon, requiresUserManagement: false },
+  { name: 'Reviews', href: '/reviews', icon: StarIcon, requiresUserManagement: false },
+  { name: 'Users', href: '/users', icon: UsersIcon, requiresUserManagement: true },
+  { name: 'Inquiries', href: '/inquiries', icon: EnvelopeIcon, requiresUserManagement: false },
 ];
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, userRole }: SidebarProps) {
   const pathname = usePathname();
+
+  const navigation = allNavigation.filter(
+    (item) => !item.requiresUserManagement || (userRole && canManageUsers(userRole))
+  );
 
   return (
     <>

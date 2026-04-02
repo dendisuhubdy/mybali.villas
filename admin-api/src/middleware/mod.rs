@@ -1,3 +1,3 @@
 pub mod auth;
 
-pub use auth::RequireAdmin;
+pub use auth::{RequireAdmin, RequireAdminOrAbove, RequireSuperAdmin};

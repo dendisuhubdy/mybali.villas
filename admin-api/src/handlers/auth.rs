@@ -51,10 +51,10 @@ pub async fn admin_login(
         return Err(AppError::Unauthorized("Invalid credentials".to_string()));
     }
 
-    // Check that the user is an admin.
-    if user.role != shared::models::UserRole::Admin {
+    // Check that the user has an admin-portal role (super_admin, admin, or operational).
+    if !user.role.is_admin_portal_role() {
         return Err(AppError::Unauthorized(
-            "Only admin users can access this portal".to_string(),
+            "Only admin portal users can access this portal".to_string(),
         ));
     }
 

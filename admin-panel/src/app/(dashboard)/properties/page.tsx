@@ -13,8 +13,20 @@ import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import Pagination from '@/components/Pagination';
 import StatusBadge from '@/components/StatusBadge';
 import { getProperties, deleteProperty, toggleFeatured } from '@/lib/api';
-import { Property, PaginatedResponse } from '@/lib/types';
+import { Property, PaginatedResponse, AdminRole, canDeleteProperties } from '@/lib/types';
 import { formatPrice, truncate, capitalize } from '@/lib/utils';
+
+function getCurrentUserRole(): AdminRole {
+  if (typeof window === 'undefined') return 'operational';
+  try {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.role || 'operational';
+    }
+  } catch { /* ignore */ }
+  return 'operational';
+}
 
 export default function PropertiesPage() {
   const [data, setData] = useState<PaginatedResponse<Property> | null>(null);
@@ -25,6 +37,11 @@ export default function PropertiesPage() {
   const [listingType, setListingType] = useState('');
   const [status, setStatus] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [currentRole, setCurrentRole] = useState<AdminRole>('operational');
+
+  useEffect(() => {
+    setCurrentRole(getCurrentUserRole());
+  }, []);
 
   const loadProperties = useCallback(async () => {
     setLoading(true);
@@ -219,29 +236,31 @@ export default function PropertiesPage() {
                         >
                           <PencilSquareIcon className="h-4 w-4" />
                         </Link>
-                        {deleteConfirm === property.id ? (
-                          <div className="flex items-center gap-1">
+                        {canDeleteProperties(currentRole) && (
+                          deleteConfirm === property.id ? (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleDelete(property.id)}
+                                className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirm(null)}
+                                className="px-2 py-1 text-xs bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
                             <button
-                              onClick={() => handleDelete(property.id)}
-                              className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                              onClick={() => setDeleteConfirm(property.id)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Delete"
                             >
-                              Confirm
+                              <TrashIcon className="h-4 w-4" />
                             </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="px-2 py-1 text-xs bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(property.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
+                          )
                         )}
                       </div>
                     </td>

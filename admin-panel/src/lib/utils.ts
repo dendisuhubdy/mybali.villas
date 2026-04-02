@@ -58,7 +58,9 @@ export function truncate(str: string, length: number = 50): string {
 }
 
 export function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
+  return str
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function getInitials(name: string): string {

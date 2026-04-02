@@ -15,7 +15,7 @@ use crate::AppState;
 ///
 /// List all inquiries with pagination and optional status filter.
 pub async fn list_inquiries(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Query(params): Query<InquiryFilterParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<Inquiry>>>, AppError> {
@@ -71,7 +71,7 @@ pub async fn list_inquiries(
 ///
 /// Get a single inquiry by ID.
 pub async fn get_inquiry(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Inquiry>>, AppError> {
@@ -88,7 +88,7 @@ pub async fn get_inquiry(
 ///
 /// Update the status of an inquiry (e.g., New -> Read -> Replied -> Closed).
 pub async fn update_inquiry_status(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateInquiryStatusRequest>,

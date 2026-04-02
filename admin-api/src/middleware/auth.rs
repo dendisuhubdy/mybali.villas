@@ -1,23 +1,51 @@
-use axum::{
-    extract::{FromRequestParts, Request},
-    http::request::Parts,
-    middleware::Next,
-    response::Response,
-};
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
 use shared::auth::{verify_token, Claims};
 use shared::errors::AppError;
+use shared::models::UserRole;
 use std::sync::Arc;
 
 use crate::AppState;
 
-/// Extractor that verifies the caller is an authenticated admin.
-///
-/// Usage:
-/// ```ignore
-/// async fn handler(RequireAdmin(claims): RequireAdmin) { ... }
-/// ```
+// ---------------------------------------------------------------------------
+// Helper: extract and validate JWT, returning claims + parsed role
+// ---------------------------------------------------------------------------
+
+fn parse_role_from_claims(claims: &Claims) -> Result<UserRole, AppError> {
+    claims
+        .role
+        .parse::<UserRole>()
+        .map_err(|_| AppError::Unauthorized(format!("Unknown role: {}", claims.role)))
+}
+
+async fn extract_claims(
+    parts: &mut Parts,
+    state: &Arc<AppState>,
+) -> Result<(Claims, UserRole), AppError> {
+    let auth_header = parts
+        .headers
+        .get("Authorization")
+        .and_then(|v| v.to_str().ok())
+        .ok_or_else(|| AppError::Unauthorized("Missing Authorization header".to_string()))?;
+
+    let token = auth_header.strip_prefix("Bearer ").ok_or_else(|| {
+        AppError::Unauthorized("Invalid Authorization header format".to_string())
+    })?;
+
+    let claims = verify_token(token, &state.jwt_secret)?;
+    let role = parse_role_from_claims(&claims)?;
+
+    Ok((claims, role))
+}
+
+// ---------------------------------------------------------------------------
+// RequireAdmin: any admin-portal role (super_admin | admin | operational)
+// ---------------------------------------------------------------------------
+
+/// Extractor that verifies the caller has any admin-portal role.
+/// All three roles (super_admin, admin, operational) pass this check.
 #[derive(Debug, Clone)]
-pub struct RequireAdmin(pub Claims);
+pub struct RequireAdmin(pub Claims, pub UserRole);
 
 impl FromRequestParts<Arc<AppState>> for RequireAdmin {
     type Rejection = AppError;
@@ -26,59 +54,67 @@ impl FromRequestParts<Arc<AppState>> for RequireAdmin {
         parts: &mut Parts,
         state: &Arc<AppState>,
     ) -> Result<Self, Self::Rejection> {
-        // Extract the Authorization header.
-        let auth_header = parts
-            .headers
-            .get("Authorization")
-            .and_then(|v| v.to_str().ok())
-            .ok_or_else(|| AppError::Unauthorized("Missing Authorization header".to_string()))?;
+        let (claims, role) = extract_claims(parts, state).await?;
 
-        // Expect "Bearer <token>".
-        let token = auth_header.strip_prefix("Bearer ").ok_or_else(|| {
-            AppError::Unauthorized("Invalid Authorization header format".to_string())
-        })?;
-
-        // Verify the token.
-        let claims = verify_token(token, &state.jwt_secret)?;
-
-        // Ensure the caller has an Admin role.
-        if claims.role != "admin" && claims.role != "Admin" {
-            return Err(AppError::Unauthorized("Admin access required".to_string()));
+        if !role.is_admin_portal_role() {
+            return Err(AppError::Unauthorized("Admin portal access required".to_string()));
         }
 
-        Ok(RequireAdmin(claims))
+        Ok(RequireAdmin(claims, role))
     }
 }
 
-/// Middleware function for admin-only routes (alternative to the extractor).
-#[allow(dead_code)]
-pub async fn require_admin_middleware(req: Request, next: Next) -> Result<Response, AppError> {
-    let (mut parts, body) = req.into_parts();
+// ---------------------------------------------------------------------------
+// RequireAdminOrAbove: only super_admin or admin (not operational)
+// ---------------------------------------------------------------------------
 
-    let state = parts
-        .extensions
-        .get::<Arc<AppState>>()
-        .cloned()
-        .ok_or_else(|| AppError::Internal("Missing app state".to_string()))?;
+/// Extractor that requires at least the `admin` role.
+/// Operational team members are rejected.
+#[derive(Debug, Clone)]
+pub struct RequireAdminOrAbove(pub Claims, pub UserRole);
 
-    let auth_header = parts
-        .headers
-        .get("Authorization")
-        .and_then(|v| v.to_str().ok())
-        .ok_or_else(|| AppError::Unauthorized("Missing Authorization header".to_string()))?;
+impl FromRequestParts<Arc<AppState>> for RequireAdminOrAbove {
+    type Rejection = AppError;
 
-    let token = auth_header
-        .strip_prefix("Bearer ")
-        .ok_or_else(|| AppError::Unauthorized("Invalid Authorization header format".to_string()))?;
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let (claims, role) = extract_claims(parts, state).await?;
 
-    let claims = verify_token(token, &state.jwt_secret)?;
+        if !role.can_manage_users() {
+            return Err(AppError::Unauthorized(
+                "Admin or Super Admin access required".to_string(),
+            ));
+        }
 
-    if claims.role != "admin" && claims.role != "Admin" {
-        return Err(AppError::Unauthorized("Admin access required".to_string()));
+        Ok(RequireAdminOrAbove(claims, role))
     }
+}
 
-    parts.extensions.insert(claims);
+// ---------------------------------------------------------------------------
+// RequireSuperAdmin: only super_admin
+// ---------------------------------------------------------------------------
 
-    let req = Request::from_parts(parts, body);
-    Ok(next.run(req).await)
+/// Extractor that requires the `super_admin` role.
+#[derive(Debug, Clone)]
+pub struct RequireSuperAdmin(pub Claims, pub UserRole);
+
+impl FromRequestParts<Arc<AppState>> for RequireSuperAdmin {
+    type Rejection = AppError;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let (claims, role) = extract_claims(parts, state).await?;
+
+        if role != UserRole::SuperAdmin {
+            return Err(AppError::Unauthorized(
+                "Super Admin access required".to_string(),
+            ));
+        }
+
+        Ok(RequireSuperAdmin(claims, role))
+    }
 }

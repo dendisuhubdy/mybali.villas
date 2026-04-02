@@ -13,7 +13,7 @@ use crate::AppState;
 ///
 /// Aggregate statistics for the admin dashboard.
 pub async fn get_stats(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<DashboardStats>>, AppError> {
     // Total properties.

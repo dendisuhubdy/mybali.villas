@@ -15,7 +15,7 @@ use crate::AppState;
 ///
 /// List all bookings with pagination and optional status/property_id filter.
 pub async fn list_bookings(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Query(params): Query<BookingFilterParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<Booking>>>, AppError> {
@@ -75,7 +75,7 @@ pub async fn list_bookings(
 ///
 /// Get a single booking by ID.
 pub async fn get_booking(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<Booking>>, AppError> {
@@ -92,7 +92,7 @@ pub async fn get_booking(
 ///
 /// Update the status of a booking (confirm, check-in, check-out, cancel, refund).
 pub async fn update_booking_status(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdmin(_claims, _role): RequireAdmin,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateBookingStatusRequest>,

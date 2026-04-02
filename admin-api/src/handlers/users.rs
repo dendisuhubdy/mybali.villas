@@ -2,11 +2,12 @@ use axum::extract::{Path, Query, State};
 use axum::Json;
 use shared::auth::hash_password;
 use shared::errors::AppError;
+use shared::models::UserRole;
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::middleware::RequireAdmin;
+use crate::middleware::RequireAdminOrAbove;
 use crate::models::{
     ApiResponse, CreateUserRequest, PaginatedResponse, PaginationParams, UpdateUserRequest,
     UserResponse,
@@ -15,9 +16,9 @@ use crate::AppState;
 
 /// GET /api/admin/users
 ///
-/// List all users with pagination.
+/// List all users with pagination. Only admin and super_admin can access.
 pub async fn list_users(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, _role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<UserResponse>>>, AppError> {
@@ -54,9 +55,9 @@ pub async fn list_users(
 
 /// GET /api/admin/users/:id
 ///
-/// Get a single user by ID.
+/// Get a single user by ID. Only admin and super_admin can access.
 pub async fn get_user(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, _role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<UserResponse>>, AppError> {
@@ -78,14 +79,25 @@ pub async fn get_user(
 /// POST /api/admin/users
 ///
 /// Create a new user. The password is hashed before storage.
+/// Role assignment is enforced:
+///   - super_admin can create any role
+///   - admin can only create operational, agent, or user roles
 pub async fn create_user(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, caller_role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<ApiResponse<UserResponse>>, AppError> {
     payload
         .validate()
         .map_err(|e| AppError::BadRequest(format!("Validation error: {e}")))?;
+
+    // Enforce role assignment permissions.
+    if !caller_role.can_assign_role(&payload.role) {
+        return Err(AppError::Forbidden(format!(
+            "Your role ({caller_role}) cannot assign the '{}' role",
+            payload.role
+        )));
+    }
 
     // Check for duplicate email.
     let exists =
@@ -129,8 +141,9 @@ pub async fn create_user(
 /// PUT /api/admin/users/:id
 ///
 /// Update an existing user. Only provided (non-null) fields are changed.
+/// Role changes are enforced by the caller's own role permissions.
 pub async fn update_user(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, caller_role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateUserRequest>,
@@ -151,6 +164,24 @@ pub async fn update_user(
     .fetch_optional(&state.pool)
     .await?
     .ok_or_else(|| AppError::NotFound(format!("User {id} not found")))?;
+
+    // Prevent modifying users with higher or equal privilege (unless self or super_admin).
+    if existing.role.privilege_level() >= caller_role.privilege_level()
+        && caller_role != UserRole::SuperAdmin
+    {
+        return Err(AppError::Forbidden(
+            "You cannot modify a user with equal or higher privileges".to_string(),
+        ));
+    }
+
+    // If role is being changed, enforce assignment permissions.
+    if let Some(ref new_role) = payload.role {
+        if !caller_role.can_assign_role(new_role) {
+            return Err(AppError::Forbidden(format!(
+                "Your role ({caller_role}) cannot assign the '{new_role}' role"
+            )));
+        }
+    }
 
     // If email is changing, check for duplicates.
     if let Some(ref new_email) = payload.email {
@@ -238,12 +269,28 @@ pub async fn update_user(
 
 /// PUT /api/admin/users/:id/toggle-active
 ///
-/// Toggle the `is_active` flag on a user.
+/// Toggle the `is_active` flag on a user. Only admin+ can do this.
+/// Cannot deactivate users with higher/equal privilege (unless super_admin).
 pub async fn toggle_active(
-    RequireAdmin(_claims): RequireAdmin,
+    RequireAdminOrAbove(_claims, caller_role): RequireAdminOrAbove,
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<UserResponse>>, AppError> {
+    // Check the target user's role first.
+    let target_role = sqlx::query_scalar::<_, UserRole>("SELECT role FROM users WHERE id = $1")
+        .bind(id)
+        .fetch_optional(&state.pool)
+        .await?
+        .ok_or_else(|| AppError::NotFound(format!("User {id} not found")))?;
+
+    if target_role.privilege_level() >= caller_role.privilege_level()
+        && caller_role != UserRole::SuperAdmin
+    {
+        return Err(AppError::Forbidden(
+            "You cannot deactivate a user with equal or higher privileges".to_string(),
+        ));
+    }
+
     let user = sqlx::query_as::<_, UserResponse>(
         r#"
         UPDATE users
