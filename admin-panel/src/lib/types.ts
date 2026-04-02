@@ -108,13 +108,33 @@ export interface Inquiry {
 
 export interface DashboardStats {
   total_properties: number;
-  active_listings: number;
+  active_properties: number;
   total_users: number;
+  total_inquiries: number;
   new_inquiries: number;
-  properties_by_type: Record<string, number>;
-  properties_by_area: Record<string, number>;
-  recent_inquiries: Inquiry[];
-  recent_properties: Property[];
+  total_views: number;
+  properties_by_type: { property_type: string; count: number }[];
+  properties_by_area: { area: string; count: number }[];
+  recent_inquiries: {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    status: string;
+    property_id: string;
+    created_at: string;
+  }[];
+  recent_properties: {
+    id: string;
+    title: string;
+    slug: string;
+    property_type: string;
+    listing_type: string;
+    price: string;
+    area: string;
+    is_active: boolean;
+    created_at: string;
+  }[];
 }
 
 export interface PaginatedResponse<T> {
