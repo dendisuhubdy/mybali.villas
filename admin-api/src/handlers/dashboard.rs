@@ -46,7 +46,7 @@ pub async fn get_stats(
 
     // Total views across all properties.
     let total_views =
-        sqlx::query_scalar::<_, i64>("SELECT COALESCE(SUM(view_count::bigint), 0) FROM properties")
+        sqlx::query_scalar::<_, i64>("SELECT COALESCE(SUM(view_count::bigint), 0)::bigint FROM properties")
             .fetch_one(&state.pool)
             .await?;
 
