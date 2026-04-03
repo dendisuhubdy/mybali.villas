@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -21,6 +22,127 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
   };
+}
+
+function renderInline(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const regex = /\*\*(.*?)\*\*/g;
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    parts.push(
+      <strong key={key++} className="font-semibold text-gray-900">
+        {match[1]}
+      </strong>
+    );
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts;
+}
+
+function renderMarkdown(content: string): React.ReactNode[] {
+  const elements: React.ReactNode[] = [];
+  const lines = content.split('\n');
+  let i = 0;
+  let key = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Skip empty lines
+    if (line.trim() === '') {
+      i++;
+      continue;
+    }
+
+    // H2
+    if (line.startsWith('## ')) {
+      elements.push(
+        <h2 key={key++} className="mt-10 mb-4 text-2xl font-bold text-gray-900">
+          {line.replace('## ', '')}
+        </h2>
+      );
+      i++;
+      continue;
+    }
+
+    // H3
+    if (line.startsWith('### ')) {
+      elements.push(
+        <h3 key={key++} className="mt-8 mb-3 text-xl font-semibold text-gray-900">
+          {line.replace('### ', '')}
+        </h3>
+      );
+      i++;
+      continue;
+    }
+
+    // Unordered list block
+    if (line.startsWith('- ')) {
+      const items: string[] = [];
+      while (i < lines.length && lines[i].startsWith('- ')) {
+        items.push(lines[i].replace(/^- (\[.\] )?/, ''));
+        i++;
+      }
+      elements.push(
+        <ul key={key++} className="my-4 list-disc pl-6 space-y-2">
+          {items.map((item, j) => (
+            <li key={j} className="text-gray-600 leading-relaxed">
+              {renderInline(item)}
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Ordered list block
+    if (line.match(/^\d+\.\s/)) {
+      const items: string[] = [];
+      while (i < lines.length && lines[i].match(/^\d+\.\s/)) {
+        items.push(lines[i].replace(/^\d+\.\s*/, ''));
+        i++;
+      }
+      elements.push(
+        <ol key={key++} className="my-4 list-decimal pl-6 space-y-2">
+          {items.map((item, j) => (
+            <li key={j} className="text-gray-600 leading-relaxed">
+              {renderInline(item)}
+            </li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    // Standalone bold line (like "**Average rental yield: 8-12%**")
+    if (line.startsWith('**') && line.endsWith('**') && line.indexOf('**', 2) === line.length - 2) {
+      elements.push(
+        <p key={key++} className="my-2 font-semibold text-gray-800">
+          {line.replace(/\*\*/g, '')}
+        </p>
+      );
+      i++;
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={key++} className="my-4 text-gray-600 leading-relaxed">
+        {renderInline(line)}
+      </p>
+    );
+    i++;
+  }
+
+  return elements;
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
@@ -89,58 +211,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
             {/* Content */}
             <div className="prose prose-lg prose-primary mx-auto mt-10 max-w-none">
-              {post.content.split('\n\n').map((paragraph, i) => {
-                if (paragraph.startsWith('## ')) {
-                  return (
-                    <h2 key={i} className="mt-8 text-2xl font-bold text-gray-900">
-                      {paragraph.replace('## ', '')}
-                    </h2>
-                  );
-                }
-                if (paragraph.startsWith('### ')) {
-                  return (
-                    <h3 key={i} className="mt-6 text-xl font-semibold text-gray-900">
-                      {paragraph.replace('### ', '')}
-                    </h3>
-                  );
-                }
-                if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                  return (
-                    <p key={i} className="font-semibold text-gray-900">
-                      {paragraph.replace(/\*\*/g, '')}
-                    </p>
-                  );
-                }
-                if (paragraph.startsWith('- ')) {
-                  const items = paragraph.split('\n').filter((l) => l.startsWith('- '));
-                  return (
-                    <ul key={i} className="list-disc pl-6 space-y-1">
-                      {items.map((item, j) => (
-                        <li key={j} className="text-gray-600">
-                          {item.replace(/^- (\[.\] )?/, '').replace(/\*\*(.*?)\*\*/g, '$1')}
-                        </li>
-                      ))}
-                    </ul>
-                  );
-                }
-                if (paragraph.match(/^\d\. /)) {
-                  const items = paragraph.split('\n').filter((l) => l.match(/^\d/));
-                  return (
-                    <ol key={i} className="list-decimal pl-6 space-y-1">
-                      {items.map((item, j) => (
-                        <li key={j} className="text-gray-600">
-                          {item.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1')}
-                        </li>
-                      ))}
-                    </ol>
-                  );
-                }
-                return (
-                  <p key={i} className="text-gray-600 leading-relaxed">
-                    {paragraph}
-                  </p>
-                );
-              })}
+              {renderMarkdown(post.content)}
             </div>
 
             {/* Share / Tags */}

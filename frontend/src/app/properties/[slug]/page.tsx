@@ -7,6 +7,10 @@ import AmenitiesGrid from '@/components/AmenitiesGrid';
 import ReviewsSection from '@/components/ReviewsSection';
 import BookingWidget from '@/components/BookingWidget';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import CopyableId from '@/components/CopyableId';
+import dynamic from 'next/dynamic';
+
+const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: false });
 import { getPropertyBySlug, getSimilarProperties, MOCK_PROPERTIES } from '@/lib/api';
 import { Property } from '@/lib/types';
 import {
@@ -286,14 +290,14 @@ export default async function PropertyDetailPage({
                     </p>
                   </div>
                 </div>
-                {/* Map Placeholder */}
-                <div className="mt-4 aspect-[16/9] rounded-lg bg-gray-100 flex items-center justify-center">
-                  <div className="text-center text-gray-400">
-                    <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
-                    </svg>
-                    <p className="mt-2 text-sm">Map will be displayed here</p>
-                  </div>
+                {/* OpenStreetMap */}
+                <div className="mt-4">
+                  <PropertyMap
+                    latitude={property.latitude}
+                    longitude={property.longitude}
+                    area={property.area}
+                    title={property.title}
+                  />
                 </div>
               </div>
             </div>
@@ -359,7 +363,7 @@ export default async function PropertyDetailPage({
               <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
                 <div className="flex items-center justify-between">
                   <span>Property ID</span>
-                  <span className="font-mono text-gray-700">{property.id}</span>
+                  <CopyableId value={property.id} />
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <span>Listed</span>

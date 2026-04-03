@@ -2,102 +2,98 @@
 """
 Import scraped villa listings into the mybali.villas production database.
 
-Reads scraped_listings.json and villa_bali_listings.json, deduplicates,
-maps fields to the properties table schema, and inserts into postgres.
+Reads all_scraped_listings.json (or scraped_listings.json + villa_bali_listings.json),
+deduplicates by title, maps fields to the properties table schema, and generates SQL.
 
-Usage (on VPS):
-    python3 import_scraped_listings.py \
-        --db "postgresql://mybalivilla:PASSWORD@localhost:5432/mybalivilla" \
-        --data-dir /opt/mybalivilla/scraped_data \
-        --uploads-dir /app/uploads
+Usage:
+    python3 import_scraped_listings.py --data-dir scraped_data --output scraped_data/import.sql
 
-Or via docker exec:
-    docker exec mybalivilla-postgres psql -U mybalivilla -d mybalivilla < import.sql
+Then on VPS:
+    docker exec -i mybalivilla-postgres psql -U mybalivilla -d mybalivilla < import.sql
 """
 
 import json
 import os
 import re
-import sys
 import uuid
 import argparse
 from pathlib import Path
 
 
 ADMIN_OWNER_ID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+BASE_URL = "https://mybali.villas"
 
-# Valid enum values
 VALID_PROPERTY_TYPES = {"villa", "house", "apartment", "land", "commercial"}
 VALID_LISTING_TYPES = {"sale", "long_term_rent", "short_term_rent", "sale_freehold", "sale_leasehold"}
 VALID_PRICE_PERIODS = {"per_night", "per_week", "per_month", "per_year", None}
 
 
 def slugify(text: str) -> str:
-    """Convert text to a URL-friendly slug."""
     text = text.lower().strip()
     text = re.sub(r'[^\w\s-]', '', text)
     text = re.sub(r'[\s_]+', '-', text)
     text = re.sub(r'-+', '-', text)
     text = text.strip('-')
-    return text[:490]  # leave room for dedup suffix
+    return text[:490]
 
 
 def escape_sql(value):
-    """Escape a string for SQL insertion."""
     if value is None:
         return "NULL"
     s = str(value).replace("'", "''").replace("\\", "\\\\")
     return f"'{s}'"
 
 
-def map_local_image_to_upload(local_path: str, base_url: str = "https://mybali.villas") -> str:
-    """Map a local image path to an absolute /uploads/ URL."""
-    filename = os.path.basename(local_path)
-    return f"{base_url}/uploads/{filename}"
+def image_url(path_or_url: str) -> str:
+    """Convert a local image path or relative URL to an absolute URL."""
+    if path_or_url.startswith("http"):
+        return path_or_url
+    filename = os.path.basename(path_or_url)
+    return f"{BASE_URL}/uploads/{filename}"
 
 
-def load_and_merge(data_dir: str):
-    """Load both JSON files and deduplicate by title (prefer villa_bali for overlaps)."""
-    scraped_file = os.path.join(data_dir, "scraped_listings.json")
-    villa_bali_file = os.path.join(data_dir, "villa_bali_listings.json")
-
+def load_listings(data_dir: str):
+    """Load listings from available JSON files, deduplicate by title."""
     listings = []
     seen_titles = set()
 
-    # Load villa_bali_listings first (has lat/lon, local images)
-    if os.path.exists(villa_bali_file):
-        with open(villa_bali_file) as f:
-            villa_bali = json.load(f)
-        print(f"Loaded {len(villa_bali)} entries from villa_bali_listings.json")
-        for entry in villa_bali:
+    # Try combined file first
+    combined_file = os.path.join(data_dir, "all_scraped_listings.json")
+    if os.path.exists(combined_file):
+        with open(combined_file) as f:
+            data = json.load(f)
+        print(f"Loaded {len(data)} entries from all_scraped_listings.json")
+        for entry in data:
             title_key = entry.get("title", "").lower().strip()
             if title_key and title_key not in seen_titles:
                 seen_titles.add(title_key)
-                entry["_source_file"] = "villa_bali"
                 listings.append(entry)
+        dupes = len(data) - len(listings)
+        if dupes:
+            print(f"Skipped {dupes} duplicate titles")
+    else:
+        # Fall back to separate files
+        for filename in ["villa_bali_listings.json", "scraped_listings.json"]:
+            filepath = os.path.join(data_dir, filename)
+            if not os.path.exists(filepath):
+                continue
+            with open(filepath) as f:
+                data = json.load(f)
+            print(f"Loaded {len(data)} entries from {filename}")
+            added = 0
+            for entry in data:
+                title_key = entry.get("title", "").lower().strip()
+                if title_key and title_key not in seen_titles:
+                    seen_titles.add(title_key)
+                    listings.append(entry)
+                    added += 1
+            print(f"  Added {added}, skipped {len(data) - added} duplicates")
 
-    # Load scraped_listings (skip duplicates)
-    if os.path.exists(scraped_file):
-        with open(scraped_file) as f:
-            scraped = json.load(f)
-        print(f"Loaded {len(scraped)} entries from scraped_listings.json")
-        skipped = 0
-        for entry in scraped:
-            title_key = entry.get("title", "").lower().strip()
-            if title_key and title_key not in seen_titles:
-                seen_titles.add(title_key)
-                entry["_source_file"] = "scraped"
-                listings.append(entry)
-            else:
-                skipped += 1
-        print(f"Skipped {skipped} duplicates from scraped_listings.json")
-
-    print(f"Total unique listings to import: {len(listings)}")
+    print(f"Total unique listings: {len(listings)}")
     return listings
 
 
 def listing_to_sql(listing: dict, slug: str) -> str:
-    """Convert a listing dict to a SQL INSERT statement."""
     prop_type = listing.get("property_type", "villa")
     if prop_type not in VALID_PROPERTY_TYPES:
         prop_type = "villa"
@@ -118,24 +114,24 @@ def listing_to_sql(listing: dict, slug: str) -> str:
     if price_period not in VALID_PRICE_PERIODS:
         price_period = None
 
-    # Build image URLs
+    # Build image URLs — prefer local_images (downloaded), fall back to image_urls
     images = []
-    if listing.get("_source_file") == "villa_bali" and listing.get("local_images"):
-        # Use uploaded local images
-        for img_path in listing["local_images"]:
-            images.append(map_local_image_to_upload(img_path))
+    if listing.get("local_images"):
+        for img in listing["local_images"]:
+            images.append(image_url(img))
     elif listing.get("image_urls"):
-        images = listing["image_urls"]
+        for img in listing["image_urls"]:
+            images.append(image_url(img))
 
     thumbnail = images[0] if images else None
 
-    features = listing.get("features", [])
     # Deduplicate features
+    features = listing.get("features", [])
     seen = set()
     unique_features = []
     for f in features:
         fl = f.lower().strip()
-        if fl not in seen:
+        if fl and fl not in seen:
             seen.add(fl)
             unique_features.append(f)
 
@@ -150,7 +146,6 @@ def listing_to_sql(listing: dict, slug: str) -> str:
     title = listing.get("title", "")
 
     prop_id = str(uuid.uuid4())
-
     images_json = json.dumps(images).replace("'", "''")
     features_json = json.dumps(unique_features).replace("'", "''")
 
@@ -188,16 +183,15 @@ def listing_to_sql(listing: dict, slug: str) -> str:
 
 
 def generate_sql(data_dir: str, output_file: str):
-    """Generate a SQL file with all INSERT statements."""
-    listings = load_and_merge(data_dir)
+    listings = load_listings(data_dir)
 
     slug_counts = {}
-    sql_statements = []
-
-    sql_statements.append("-- Import scraped villa listings")
-    sql_statements.append(f"-- Generated: {len(listings)} listings")
-    sql_statements.append("BEGIN;")
-    sql_statements.append("")
+    sql_statements = [
+        "-- Import scraped villa listings",
+        f"-- Generated: {len(listings)} listings",
+        "BEGIN;",
+        "",
+    ]
 
     for listing in listings:
         title = listing.get("title", "Untitled Villa")
@@ -205,7 +199,6 @@ def generate_sql(data_dir: str, output_file: str):
         if not base_slug:
             base_slug = "villa"
 
-        # Ensure unique slug
         if base_slug in slug_counts:
             slug_counts[base_slug] += 1
             slug = f"{base_slug}-{slug_counts[base_slug]}"

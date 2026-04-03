@@ -26,7 +26,7 @@ IMG_DIR = DATA_DIR / "images"
 DATA_DIR.mkdir(exist_ok=True)
 IMG_DIR.mkdir(exist_ok=True)
 
-TARGET_PER_SITE = 100
+TARGET_PER_SITE = 500
 
 
 def get_client():
@@ -935,15 +935,10 @@ def upload_listings(listings, token):
 # =============================================================================
 def main():
     print("=" * 60)
-    print("Villa Listing Scraper & Uploader for mybali.villas")
+    print("Villa Listing Scraper for mybali.villas")
     print("=" * 60)
 
-    # Step 1: Get admin token
-    print("\nStep 1: Authenticating...")
-    token = get_admin_token()
-    print(f"  Got admin token: {token[:20]}...")
-
-    # Step 2: Scrape all three sites
+    # Scrape all three sites
     bvs_listings = scrape_balivillasales()
     vf_listings = scrape_villa_finder()
     vb_listings = scrape_villa_bali()
@@ -955,19 +950,20 @@ def main():
     print(f"  - villa-bali.com: {len(vb_listings)}")
 
     # Save raw scraped data
-    with open(DATA_DIR / "scraped_listings.json", "w") as f:
+    with open(DATA_DIR / "all_scraped_listings.json", "w") as f:
         json.dump(all_listings, f, indent=2, default=str)
-    print(f"\nSaved raw data to {DATA_DIR / 'scraped_listings.json'}")
+    print(f"\nSaved raw data to {DATA_DIR / 'all_scraped_listings.json'}")
 
-    # Step 3: Download images
+    # Download images
     all_listings = download_images(all_listings)
 
-    # Step 4: Upload to API
-    uploaded, failed = upload_listings(all_listings, token)
+    # Save again with local_images paths
+    with open(DATA_DIR / "all_scraped_listings.json", "w") as f:
+        json.dump(all_listings, f, indent=2, default=str)
 
     print(f"\n{'='*60}")
-    print(f"DONE! Uploaded {uploaded} listings to mybali.villas")
-    print(f"Failed: {failed}")
+    print(f"DONE! Scraped {len(all_listings)} listings with images")
+    print(f"Run import_scraped_listings.py to import into DB")
     print(f"{'='*60}")
 
 
