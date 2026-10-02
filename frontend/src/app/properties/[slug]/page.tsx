@@ -8,6 +8,7 @@ import ReviewsSection from '@/components/ReviewsSection';
 import BookingWidget from '@/components/BookingWidget';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import CopyableId from '@/components/CopyableId';
+import ListingContactCard from '@/components/ListingContactCard';
 import dynamic from 'next/dynamic';
 
 const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: false });
@@ -55,6 +56,14 @@ export default async function PropertyDetailPage({
   }
 
   const similarProperties = await fetchSimilarProperties(property.id);
+
+  const hasListingContact = Boolean(
+    property.contact_whatsapp || property.contact_phone || property.contact_email
+  );
+  const listedBy: { name: string; company?: string | null; properties_count?: number } | null =
+    property.contact_name
+      ? { name: property.contact_name, company: property.contact_company }
+      : property.agent ?? null;
 
   // Handle API field name differences
   const propertyAny = property as unknown as Record<string, unknown>;
@@ -303,7 +312,7 @@ export default async function PropertyDetailPage({
             </div>
 
             {/* Agent Info */}
-            {property.agent && (
+            {listedBy && (
               <div className="mt-8">
                 <h2 className="text-xl font-semibold text-gray-900">Listed By</h2>
                 <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6">
@@ -315,16 +324,18 @@ export default async function PropertyDetailPage({
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">
-                        {property.agent.name}
+                        {listedBy.name}
                       </p>
-                      {property.agent.company && (
+                      {listedBy.company && (
                         <p className="text-sm text-gray-500">
-                          {property.agent.company}
+                          {listedBy.company}
                         </p>
                       )}
-                      <p className="mt-1 text-xs text-gray-400">
-                        {property.agent.properties_count} listings
-                      </p>
+                      {listedBy.properties_count !== undefined && (
+                        <p className="mt-1 text-xs text-gray-400">
+                          {listedBy.properties_count} listings
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -350,14 +361,32 @@ export default async function PropertyDetailPage({
                 variant="sidebar"
                 propertyTitle={property.title}
                 propertyId={property.id}
+                phoneNumber={property.contact_whatsapp}
+                message={
+                  property.contact_whatsapp
+                    ? `Hi, I'm interested in "${property.title}"${property.source_url ? ` ${property.source_url}` : ''}. Could you please provide more information?`
+                    : undefined
+                }
               />
 
-              {/* Inquiry Form */}
-              <InquiryForm
-                propertyId={property.id}
-                propertyTitle={property.title}
-                agentName={property.agent?.name}
-              />
+              {/* Enquiry: listing's own contact when it has one, otherwise our inquiry form */}
+              {hasListingContact ? (
+                <ListingContactCard
+                  name={property.contact_name}
+                  company={property.contact_company}
+                  phone={property.contact_phone}
+                  whatsapp={property.contact_whatsapp}
+                  email={property.contact_email}
+                  sourceUrl={property.source_url}
+                  propertyTitle={property.title}
+                />
+              ) : (
+                <InquiryForm
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  agentName={property.agent?.name}
+                />
+              )}
 
               {/* Property ID / Meta */}
               <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">

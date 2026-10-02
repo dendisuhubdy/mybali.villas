@@ -6,18 +6,27 @@ interface WhatsAppButtonProps {
   propertyTitle?: string;
   propertyId?: string;
   variant?: 'floating' | 'inline' | 'sidebar';
+  /** Listing-specific WhatsApp number (any format); defaults to the site number */
+  phoneNumber?: string | null;
+  /** Overrides the default prefilled message */
+  message?: string;
 }
 
 export default function WhatsAppButton({
   propertyTitle,
   propertyId,
   variant = 'floating',
+  phoneNumber,
+  message: customMessage,
 }: WhatsAppButtonProps) {
-  const message = propertyTitle
-    ? `Hi, I'm interested in the property: ${propertyTitle}${propertyId ? ` (ID: ${propertyId})` : ''}. Could you please provide more information?`
-    : "Hi, I'm interested in finding a property in Bali. Could you help me?";
+  const message =
+    customMessage ??
+    (propertyTitle
+      ? `Hi, I'm interested in the property: ${propertyTitle}${propertyId ? ` (ID: ${propertyId})` : ''}. Could you please provide more information?`
+      : "Hi, I'm interested in finding a property in Bali. Could you help me?");
 
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  const number = phoneNumber?.replace(/\D/g, '') || WHATSAPP_NUMBER;
+  const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 
   if (variant === 'floating') {
     return (

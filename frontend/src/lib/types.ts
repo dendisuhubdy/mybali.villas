@@ -62,6 +62,13 @@ export interface Property {
   features: string[];
   images: PropertyImage[];
   agent?: Agent;
+  // Enquiry contact for externally sourced listings (falls back to site contact when absent)
+  contact_name?: string | null;
+  contact_company?: string | null;
+  contact_phone?: string | null;
+  contact_whatsapp?: string | null;
+  contact_email?: string | null;
+  source_url?: string | null;
   created_at: string;
   updated_at: string;
   is_featured: boolean;

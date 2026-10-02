@@ -129,6 +129,12 @@ pub struct PropertyResponse {
     pub view_count: i32,
     pub avg_rating: Option<Decimal>,
     pub review_count: Option<i32>,
+    pub contact_name: Option<String>,
+    pub contact_company: Option<String>,
+    pub contact_phone: Option<String>,
+    pub contact_whatsapp: Option<String>,
+    pub contact_email: Option<String>,
+    pub source_url: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
