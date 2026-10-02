@@ -27,6 +27,7 @@ Then:
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -234,6 +235,10 @@ def parse_feed(xml_bytes: bytes) -> list:
     return listings
 
 
+def image_filename(url: str) -> str:
+    return f"bbr-{hashlib.sha1(url.encode()).hexdigest()[:20]}.jpg"
+
+
 def download(job):
     src, dest = job
     if os.path.exists(dest) and os.path.getsize(dest) > 0:
@@ -257,8 +262,9 @@ def download_images(listings, images_dir, skip):
     jobs = []
     for l in listings:
         l["local_images"] = []
-        for i, url in enumerate(l["image_urls"]):
-            dest = os.path.join(images_dir, f"bbr-{l['ref'].lower()}-{i + 1}.jpg")
+        for url in l["image_urls"]:
+            # Named by source image URL: refs are not unique across listings
+            dest = os.path.join(images_dir, image_filename(url))
             l["local_images"].append(dest)
             jobs.append((url, dest))
     if skip:
@@ -326,13 +332,18 @@ def listing_sql(l) -> str:
 
 def generate_sql(listings, output_file):
     urls = ", ".join(sql_str(l["source_url"]) for l in listings)
+    active_bbr = f"(SELECT count(*) FROM properties WHERE source_url LIKE '{SOURCE_PREFIX}%' AND is_active)"
     statements = [
         f"-- Balibound Realty sync: {len(listings)} listings",
         "BEGIN;",
+        # The feed occasionally returns a partial result (e.g. without off-plan units);
+        # only deactivate when this feed is close to the size of what is already live.
+        f"CREATE TEMP TABLE bbr_sync_guard ON COMMIT DROP AS SELECT {len(listings)} >= 0.8 * {active_bbr} AS ok;",
         *[listing_sql(l) for l in listings],
         "-- Deactivate listings no longer on baliboundrealty.com",
         f"UPDATE properties SET is_active = false, updated_at = NOW()\n"
-        f"WHERE source_url LIKE '{SOURCE_PREFIX}%' AND is_active AND source_url NOT IN ({urls});",
+        f"WHERE source_url LIKE '{SOURCE_PREFIX}%' AND is_active AND (SELECT ok FROM bbr_sync_guard)\n"
+        f"  AND source_url NOT IN ({urls});",
         "COMMIT;",
     ]
     with open(output_file, "w") as f:
@@ -355,7 +366,10 @@ def main():
         f.write(xml_bytes)
 
     listings = [l for l in parse_feed(xml_bytes) if l["title"] and l["source_url"]]
-    print(f"Parsed {len(listings)} listings")
+    declared = ET.fromstring(xml_bytes).findtext("count")
+    print(f"Parsed {len(listings)} listings (feed declares {declared})")
+    if declared and declared.isdigit() and len(listings) < int(declared):
+        raise SystemExit("Feed returned fewer listings than it declares; re-run the sync")
 
     download_images(listings, args.images_dir, args.skip_images)
 
